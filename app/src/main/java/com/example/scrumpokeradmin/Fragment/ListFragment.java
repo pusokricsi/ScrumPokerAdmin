@@ -1,6 +1,7 @@
 package com.example.scrumpokeradmin.Fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.scrumpokeradmin.Activity.LoginActivity;
 import com.example.scrumpokeradmin.MyQuestionItemRecyclerViewAdapter;
-import com.example.scrumpokeradmin.Object.DatabaseHelper;
 import com.example.scrumpokeradmin.R;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -45,6 +45,7 @@ public class ListFragment extends Fragment {
                 RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(mAdapter);
+                Log.i("FBDB","Listener childAdded");
             }
 
             @Override
@@ -53,6 +54,7 @@ public class ListFragment extends Fragment {
                 RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(mAdapter);
+                Log.i("FBDB","Listener childChanged");
             }
 
             @Override
@@ -61,6 +63,7 @@ public class ListFragment extends Fragment {
                 RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(view.getContext());
                 recyclerView.setLayoutManager(layoutManager);
                 recyclerView.setAdapter(mAdapter);
+                Log.i("FBDB","Listener childRemoved");
             }
 
             @Override
@@ -78,4 +81,7 @@ public class ListFragment extends Fragment {
         });
         return view;
     }
+
+
+
 }

@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -27,6 +28,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText nameEditText,sessionNameEditText;
     public static DatabaseHelper db;
     Integer key = null;
+    String keyIsExist = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,15 +42,9 @@ public class LoginActivity extends AppCompatActivity {
     public void loginButtonClick(View view) {
         if (!nameEditText.getText().toString().equals("") && !sessionNameEditText.getText().toString().equals(""))
         {
-            db.setLastKey(key);
-            db.setOwnerName(nameEditText.getText().toString());
-            db.setSessionName(sessionNameEditText.getText().toString());
-            Intent intent = new Intent(LoginActivity.this,CreateActivity.class);
-            intent.putExtra("ownerName",nameEditText.getText().toString());
-            intent.putExtra("sessionName",sessionNameEditText.getText().toString());
-            intent.putExtra("sessionId",key);
-            Log.i("FBDB","LASTKEY: "+key);
-            startActivity(intent);
+            Log.i("FBDB","LAST KEY: "+key);
+            testIfExist(nameEditText.getText().toString(),sessionNameEditText.getText().toString());
+
         }else{
             Toast.makeText(this,"Please fill all fields!",Toast.LENGTH_SHORT).show();
         }
@@ -97,4 +93,45 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void testIfExist(final String name, final String session){
+
+        DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("SESSION");
+        Query query = mDatabaseReference.orderByChild("SESSION");
+
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot child:dataSnapshot.getChildren()){
+                    if (child.child("ownerName").getValue().equals(name) && child.child("sessionName").getValue().equals(session)){
+                        Log.i("FBDB","IF CHILD EXIST,THE KEY IS: "+child.getKey());
+                        keyIsExist = child.getKey();
+                        break;
+                    }
+                }
+                if (keyIsExist!= null){
+                    db.setLastKey(Integer.valueOf(keyIsExist)-1);
+                    db.setOwnerName(nameEditText.getText().toString());
+                    db.setSessionName(sessionNameEditText.getText().toString());
+                }else {
+                    db.setLastKey(key);
+                    db.setOwnerName(nameEditText.getText().toString());
+                    db.setSessionName(sessionNameEditText.getText().toString());
+                }
+
+                Intent intent = new Intent(LoginActivity.this,CreateActivity.class);
+                intent.putExtra("ownerName",nameEditText.getText().toString());
+                intent.putExtra("sessionName",sessionNameEditText.getText().toString());
+                intent.putExtra("sessionId",key);
+                Log.i("FBDB","LASTKEY: "+key);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 }

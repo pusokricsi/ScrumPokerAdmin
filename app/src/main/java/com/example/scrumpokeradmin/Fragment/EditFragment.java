@@ -1,6 +1,5 @@
 package com.example.scrumpokeradmin.Fragment;
 
-
 import android.os.Bundle;
 
 import androidx.fragment.app.DialogFragment;
@@ -16,21 +15,28 @@ import android.widget.Toast;
 import com.example.scrumpokeradmin.Activity.LoginActivity;
 import com.example.scrumpokeradmin.Object.Question;
 import com.example.scrumpokeradmin.R;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
-
-public class CreateFragment extends Fragment {
+public class EditFragment extends DialogFragment {
     private View view;
     private EditText questionEditText,timeEditText;
-    private Button sendQuestionButton;
-    public CreateFragment() {
-        // Required empty public constructor
+    private Button sendQuestionButton,deleteButton;
+    String question,time;
+    public EditFragment(String question,String time) {
+        this.question = question;
+        this.time = time;
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        view =  inflater.inflate(R.layout.fragment_create, container, false);
+        view =  inflater.inflate(R.layout.fragment_edit, container, false);
         inicialize();
+        questionEditText.setText(question);
+        timeEditText.setText(time);
+        final String key = LoginActivity.db.getQuestionKey(question);
         sendQuestionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -40,10 +46,17 @@ public class CreateFragment extends Fragment {
                     String hour = time.substring(0,index);
                     String minute = time.substring(index+1);
                     Question question = new Question(questionEditText.getText().toString(),minute,hour);
-                    LoginActivity.db.setQuestion(question);
+                    LoginActivity.db.setQuestion(question,key);
                 }else{
                     Toast.makeText(view.getContext(),"You did'n write a question!",Toast.LENGTH_LONG).show();
                 }
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                LoginActivity.db.deleteQuestion(key);
             }
         });
 
@@ -62,6 +75,8 @@ public class CreateFragment extends Fragment {
         questionEditText = view.findViewById(R.id.questionEditText);
         sendQuestionButton = view.findViewById(R.id.setQuestionButton);
         timeEditText = view.findViewById(R.id.timeEditText);
+        deleteButton = view.findViewById(R.id.deleteQuestionButton);
     }
+
 
 }
